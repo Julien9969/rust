@@ -59,9 +59,14 @@ impl eframe::App for TemplateApp {
                         }
                     });
                     ui.add_space(16.0);
+                    ui.menu_button("Options", |ui| {
+                        egui::widgets::global_theme_preference_buttons(ui);
+                        if ui.button("Quit").clicked() {
+                            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                        }
+                    });
                 }
 
-                egui::widgets::global_theme_preference_buttons(ui);
             });
         });
 
