@@ -7,11 +7,22 @@ use egui_plot::Plot;
 
 pub struct HistogramExample {
     vertical: bool,
+    bars: Vec<Bar>,
 }
 
 impl Default for HistogramExample {
     fn default() -> Self {
-        Self { vertical: true }
+        let bars = (-395..=395)
+            .step_by(10)
+            .map(|x| x as f64 * 0.01)
+            .map(|x| (x, (-x * x / 2.0).exp() / (2.0 * std::f64::consts::PI).sqrt()))
+            .map(|(x, f)| Bar::new(x, f * 10.0).width(0.1))
+            .collect();
+
+        Self {
+            vertical: true,
+            bars,
+        }
     }
 }
 
@@ -31,16 +42,8 @@ impl HistogramExample {
     }
 
     pub fn show_plot(&self, ui: &mut egui::Ui) -> Response {
-        let mut chart = BarChart::new(
-            "Normal Distribution",
-            (-395..=395)
-                .step_by(10)
-                .map(|x| x as f64 * 0.01)
-                .map(|x| (x, (-x * x / 2.0).exp() / (2.0 * std::f64::consts::PI).sqrt()))
-                .map(|(x, f)| Bar::new(x, f * 10.0).width(0.1))
-                .collect(),
-        )
-        .color(egui::Color32::LIGHT_BLUE);
+        let mut chart = BarChart::new("Normal Distribution", self.bars.clone())
+            .color(egui::Color32::LIGHT_BLUE);
 
         if !self.vertical {
             chart = chart.horizontal();
