@@ -1,28 +1,15 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import { listen } from '@tauri-apps/api/event';
+  import StatusDisplay from "$lib/components/StatusDisplay.svelte";
 
   let name = $state("");
   let greetMsg = $state("");
-  let statusUpdate = $state("");
 
   async function greet(event: Event) {
     event.preventDefault();
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     greetMsg = await invoke("greet", { name });
   }
-
-  type StatusUpdate = {
-    appName: string;
-    idleTime: number;
-  };
-
-  listen<StatusUpdate>('status-update', (event) => {
-    console.log(
-      `status update: ${event.payload.appName} has been idle for ${event.payload.idleTime}ms`
-    );
-    statusUpdate = `status update: ${event.payload.appName} has been idle for ${event.payload.idleTime}ms`;
-  });
 </script>
 
 <main class="container">
@@ -46,8 +33,12 @@
     <button type="submit">Greet</button>
   </form>
   <p>{greetMsg}</p>
-  <p>{statusUpdate}</p>
 
+  <StatusDisplay />
+
+  <nav class="navigation">
+    <a href="/second" class="nav-button">Go to Second Page →</a>
+  </nav>
 
 </main>
 
@@ -150,6 +141,29 @@ button {
   margin-right: 5px;
 }
 
+.navigation {
+  margin-top: 2rem;
+}
+
+.nav-button {
+  display: inline-block;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: #ffffff;
+  background-color: #646cff;
+  text-decoration: none;
+  transition: background-color 0.25s;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.nav-button:hover {
+  background-color: #535bf2;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -167,6 +181,14 @@ button {
   }
   button:active {
     background-color: #0f0f0f69;
+  }
+
+  .nav-button {
+    background-color: #24c8db;
+  }
+
+  .nav-button:hover {
+    background-color: #1db3c8;
   }
 }
 

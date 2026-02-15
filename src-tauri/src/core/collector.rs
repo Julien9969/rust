@@ -21,7 +21,7 @@ pub fn send_status(app: &AppHandle, status_update: StatusUpdate) {
 }
 
 pub async fn run_collector(app: AppHandle) {
-    let mut ticker = interval(Duration::from_secs(5));
+    let mut ticker = interval(Duration::from_secs(2));
 
     loop {
         log::debug!("tick");
