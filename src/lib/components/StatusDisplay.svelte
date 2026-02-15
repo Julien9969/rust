@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
+  import * as Card from "$lib/components/ui/card";
 
   type StatusUpdate = {
     appName: string;
@@ -39,126 +40,33 @@
   }
 </script>
 
-<div class="status-card">
-  <h2>Activity Status</h2>
-  
-  {#if statusUpdate}
-    <div class="status-content">
-      <div class="status-item">
-        <span class="label">Active Application:</span>
-        <span class="value">{statusUpdate.appName}</span>
+<Card.Root>
+  <Card.Header>
+    <Card.Title>Activity Status</Card.Title>
+    <Card.Description>Real-time tracking of your active window and idle time</Card.Description>
+  </Card.Header>
+  <Card.Content>
+    {#if statusUpdate}
+      <div class="space-y-3">
+        <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
+          <span class="text-sm font-medium text-muted-foreground">Active Application</span>
+          <span class="text-sm font-semibold">{statusUpdate.appName}</span>
+        </div>
+        
+        <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
+          <span class="text-sm font-medium text-muted-foreground">Idle Time</span>
+          <span class="text-sm font-semibold font-mono text-primary">{formatIdleTime(statusUpdate.idleTime)}</span>
+        </div>
+        
+        <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
+          <span class="text-sm font-medium text-muted-foreground">Last Updated</span>
+          <span class="text-sm text-muted-foreground">{lastUpdated}</span>
+        </div>
       </div>
-      
-      <div class="status-item">
-        <span class="label">Idle Time:</span>
-        <span class="value idle-time">{formatIdleTime(statusUpdate.idleTime)}</span>
-      </div>
-      
-      <div class="status-item">
-        <span class="label">Last Updated:</span>
-        <span class="value time">{lastUpdated}</span>
-      </div>
-    </div>
-  {:else}
-    <p class="waiting">Waiting for status updates...</p>
-  {/if}
-</div>
-
-<style>
-  .status-card {
-    background-color: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 0 auto;
-    max-width: 600px;
-    border: 1px solid #e0e0e0;
-  }
-
-  h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #646cff;
-    font-size: 1.5rem;
-    border-bottom: 2px solid #646cff;
-    padding-bottom: 0.5rem;
-  }
-
-  .status-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .status-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem;
-    background-color: #f8f8f8;
-    border-radius: 6px;
-  }
-
-  .label {
-    font-weight: 500;
-    color: #666;
-  }
-
-  .value {
-    font-weight: 600;
-    color: #0f0f0f;
-  }
-
-  .idle-time {
-    font-family: 'Courier New', monospace;
-    color: #646cff;
-  }
-
-  .time {
-    font-size: 0.9em;
-    color: #888;
-  }
-
-  .waiting {
-    text-align: center;
-    color: #999;
-    font-style: italic;
-    padding: 2rem;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .status-card {
-      background-color: #1a1a1a;
-      border-color: #333;
-    }
-
-    h2 {
-      color: #24c8db;
-      border-bottom-color: #24c8db;
-    }
-
-    .status-item {
-      background-color: #2a2a2a;
-    }
-
-    .label {
-      color: #aaa;
-    }
-
-    .value {
-      color: #f6f6f6;
-    }
-
-    .idle-time {
-      color: #24c8db;
-    }
-
-    .time {
-      color: #888;
-    }
-
-    .waiting {
-      color: #666;
-    }
-  }
-</style>
+    {:else}
+      <p class="text-center text-muted-foreground italic py-8">
+        Waiting for status updates...
+      </p>
+    {/if}
+  </Card.Content>
+</Card.Root>
