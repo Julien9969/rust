@@ -3,10 +3,24 @@ use log::{error, info};
 use system_idle_time::get_idle_time;
 use tokio::time::{interval, Duration};
 
+use tauri::{AppHandle, Emitter, EventTarget};
+use serde::{Serialize, Deserialize};
 
-pub async fn run_collector(
-    // idle_threshold: u64,
-) {
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StatusUpdate {
+  app_name: String,
+  idle_time: u128,
+}
+
+pub fn send_status(app: &AppHandle, status_update: StatusUpdate) {
+  app.emit_filter("status-update", status_update, |target| match target {
+    EventTarget::WebviewWindow { label } => label == "main",
+    _ => false,
+  }).unwrap();
+}
+
+pub async fn run_collector(app: AppHandle) {
     let mut ticker = interval(Duration::from_secs(5));
 
     loop {
@@ -16,28 +30,41 @@ pub async fn run_collector(
         // let idle = idle_time::get_idle_time()
         //     .map(|d| d.as_secs())
         //     .unwrap_or(0);
-        get_idle_time_info();
+        let idle_time = get_idle_time_info();
 
         // 2️⃣ fenêtre active
-        get_active_window_info();
-    }
-}
-
-
-fn get_active_window_info() {
-    match get_active_window() {
-        Ok(active_window) => {
-            info!("active window: {:#?}", active_window);
-        },
-        Err(()) => {
-            error!("error occurred while getting the active window");
+        let app_name = get_active_window_info();
+        if let (Some(idle_time), Some(app_name)) = (idle_time, app_name) {
+            send_status(
+                &app,
+                StatusUpdate { app_name, idle_time }
+            );
         }
     }
 }
 
-fn get_idle_time_info() {
+fn get_active_window_info() -> Option<String> {
+    match get_active_window() {
+        Ok(active_window) => {
+            info!("active window: {:#?}", active_window);
+            Some(active_window.app_name)
+        },
+        Err(()) => {
+            error!("error occurred while getting the active window");
+            None
+        }
+    }
+}
+
+fn get_idle_time_info() -> Option<u128> {
     match get_idle_time() {
-        Ok(idle_time) => info!("Idle time: {} ms", idle_time.as_millis()),
-        Err(e) => error!("Error getting idle time: {}", e),
+        Ok(idle_time) => {
+            info!("Idle time: {} ms", idle_time.as_millis());
+            Some(idle_time.as_millis())
+        },
+        Err(e) => {
+            error!("Error getting idle time: {}", e);
+            None
+        }
     }
 }

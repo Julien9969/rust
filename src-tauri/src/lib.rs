@@ -1,8 +1,6 @@
 mod core;
 
 use crate::core::collector::run_collector;
-use log::info;
-use tokio::runtime::Runtime;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -19,9 +17,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet])
-        .setup(|_app| {
-            tauri::async_runtime::spawn(async {
-                run_collector().await;
+        .setup(|app| {
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                run_collector(handle).await;
             });
             Ok(())
         })

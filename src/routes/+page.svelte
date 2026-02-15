@@ -1,14 +1,28 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import { listen } from '@tauri-apps/api/event';
 
   let name = $state("");
   let greetMsg = $state("");
+  let statusUpdate = $state("");
 
   async function greet(event: Event) {
     event.preventDefault();
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     greetMsg = await invoke("greet", { name });
   }
+
+  type StatusUpdate = {
+    appName: string;
+    idleTime: number;
+  };
+
+  listen<StatusUpdate>('status-update', (event) => {
+    console.log(
+      `status update: ${event.payload.appName} has been idle for ${event.payload.idleTime}ms`
+    );
+    statusUpdate = `status update: ${event.payload.appName} has been idle for ${event.payload.idleTime}ms`;
+  });
 </script>
 
 <main class="container">
@@ -32,6 +46,9 @@
     <button type="submit">Greet</button>
   </form>
   <p>{greetMsg}</p>
+  <p>{statusUpdate}</p>
+
+
 </main>
 
 <style>
