@@ -4,6 +4,7 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import { Input } from "$lib/components/ui/input";
+  import ThemeModeToggle from "$lib/components/ThemeModeToggle.svelte";
 
   let name = $state("");
   let greetMsg = $state("");
@@ -30,6 +31,7 @@
           <img src="/svelte.svg" class="h-20" alt="SvelteKit Logo" />
         </a>
       </div>
+      <ThemeModeToggle />
       
       <p class="text-muted-foreground">
         Click on the Tauri, Vite, and SvelteKit logos to learn more.
