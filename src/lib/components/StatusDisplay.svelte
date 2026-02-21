@@ -6,6 +6,7 @@
   type StatusUpdate = {
     appName: string;
     idleTime: number;
+    audioPlayingApps: string[];
   };
 
   let statusUpdate = $state<StatusUpdate | null>(null);
@@ -61,6 +62,11 @@
         <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
           <span class="text-sm font-medium text-muted-foreground">Last Updated</span>
           <span class="text-sm text-muted-foreground">{lastUpdated}</span>
+        </div>
+
+        <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
+          <span class="text-sm font-medium text-muted-foreground">Audio</span>
+          <span class="text-sm text-muted-foreground">{statusUpdate.audioPlayingApps.join(', ')}</span>
         </div>
       </div>
     {:else}

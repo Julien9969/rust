@@ -6,11 +6,14 @@ use tokio::time::{interval, Duration};
 use tauri::{AppHandle, Emitter, EventTarget};
 use serde::{Serialize, Deserialize};
 
+use super::audio::get_audio_playing_apps;
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StatusUpdate {
   app_name: String,
   idle_time: u128,
+  audio_playing_apps: Vec<String>,
 }
 
 pub fn send_status(app: &AppHandle, status_update: StatusUpdate) {
@@ -34,10 +37,11 @@ pub async fn run_collector(app: AppHandle) {
 
         // 2️⃣ fenêtre active
         let app_name = get_active_window_info();
+        let audio_playing_apps = get_audio_playing_apps();
         if let (Some(idle_time), Some(app_name)) = (idle_time, app_name) {
             send_status(
                 &app,
-                StatusUpdate { app_name, idle_time }
+                StatusUpdate { app_name, idle_time, audio_playing_apps }
             );
         }
     }
