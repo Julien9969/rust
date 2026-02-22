@@ -25,11 +25,11 @@
 </script>
 
 <Card.Root class="flex flex-col">
-  <Card.Header class="items-center">
+  <Card.Header class="items-center pb-0">
     <Card.Title>Pie Chart - Donut with Text</Card.Title>
     <Card.Description>January - June 2024</Card.Description>
   </Card.Header>
-  <Card.Content class="flex-1">
+  <Card.Content class="flex-1 pb-0">
     <Chart.Container config={chartConfig} class="mx-auto aspect-square max-h-[250px]">
       <PieChart
         data={chartData}
@@ -62,7 +62,7 @@
       </PieChart>
     </Chart.Container>
   </Card.Content>
-  <Card.Footer class="flex-col gap-2 text-sm">
+  <Card.Footer class="flex-col gap-2 text-sm pt-0">
     <div class="flex items-center gap-2 leading-none font-medium">
       Trending up by 5.2% this month <TrendingUpIcon class="size-4" />
     </div>
