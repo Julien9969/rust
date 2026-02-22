@@ -24,20 +24,20 @@
   const totalVisitors = chartData.reduce((acc, curr) => acc + curr.visitors, 0);
 </script>
 
-<Card.Root class="flex flex-col">
-  <Card.Header class="items-center pb-0">
+<Card.Root class="flex flex-col" style="padding: 0.8rem 0rem;">
+  <Card.Header class="items-center">
     <Card.Title>Pie Chart - Donut with Text</Card.Title>
     <Card.Description>January - June 2024</Card.Description>
   </Card.Header>
-  <Card.Content class="flex-1 pb-0">
-    <Chart.Container config={chartConfig} class="mx-auto aspect-square max-h-[250px]">
+  <Card.Content class="flex-1" style="">
+    <Chart.Container config={chartConfig} class="mx-auto aspect-square" style="max-height: 200px;">
       <PieChart
         data={chartData}
         key="browser"
         value="visitors"
         c="color"
-        innerRadius={60}
-        padding={28}
+        innerRadius={70}
+        padding={6}
         props={{ pie: { motion: "tween" } }}
       >
         {#snippet aboveMarks()}
@@ -62,7 +62,7 @@
       </PieChart>
     </Chart.Container>
   </Card.Content>
-  <Card.Footer class="flex-col gap-2 text-sm pt-0">
+  <Card.Footer class="flex-col gap-1 text-sm">
     <div class="flex items-center gap-2 leading-none font-medium">
       Trending up by 5.2% this month <TrendingUpIcon class="size-4" />
     </div>
