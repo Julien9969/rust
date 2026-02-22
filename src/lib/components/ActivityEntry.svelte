@@ -3,22 +3,24 @@
   import { listen } from '@tauri-apps/api/event';
   import * as Card from "$lib/components/ui/card";
 
-  type StatusUpdate = {
+  type ActivityEntry = {
+    startTime: Date;
+    endTime: Date;
+    title: string;
+    processPath: string;
     appName: string;
     idleTime: number;
-    audioPlayingApps: string[];
+    isAudioPlaying : boolean;
   };
 
-  let statusUpdate = $state<StatusUpdate | null>(null);
-  let lastUpdated = $state<string>("");
+  let statusUpdate = $state<ActivityEntry | null>(null);
 
   onMount(() => {
-    const unlisten = listen<StatusUpdate>('status-update', (event) => {
+    const unlisten = listen<ActivityEntry>('status-update', (event) => {
       console.log(
-        `status update: ${event.payload.appName} has been idle for ${event.payload.idleTime}ms`
+        `status update: ${event.payload.processPath} has been idle for ${event.payload.idleTime}ms, is audio ${event.payload.isAudioPlaying}`
       );
       statusUpdate = event.payload;
-      lastUpdated = new Date().toLocaleTimeString();
     });
 
     return () => {
@@ -61,12 +63,12 @@
         
         <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
           <span class="text-sm font-medium text-muted-foreground">Last Updated</span>
-          <span class="text-sm text-muted-foreground">{lastUpdated}</span>
+          <span class="text-sm text-muted-foreground">{statusUpdate.startTime}</span>
         </div>
 
         <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
           <span class="text-sm font-medium text-muted-foreground">Audio</span>
-          <span class="text-sm text-muted-foreground">{statusUpdate.audioPlayingApps.join(', ')}</span>
+          <span class="text-sm text-muted-foreground">{statusUpdate.isAudioPlaying}</span>
         </div>
       </div>
     {:else}

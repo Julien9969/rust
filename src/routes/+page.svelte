@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import StatusDisplay from "$lib/components/StatusDisplay.svelte";
+  import StatusDisplay from "$lib/components/ActivityEntry.svelte";
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import { Input } from "$lib/components/ui/input";
