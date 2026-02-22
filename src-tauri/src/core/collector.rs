@@ -2,6 +2,8 @@ use active_win_pos_rs::get_active_window;
 use log::{error, info};
 use system_idle_time::get_idle_time;
 use tokio::time::{interval, Duration};
+use chrono::{DateTime, Utc};
+use crate::shared::structs::ActivityEntry;
 
 use tauri::{AppHandle, Emitter, EventTarget};
 use serde::{Serialize, Deserialize};

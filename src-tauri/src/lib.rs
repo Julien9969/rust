@@ -1,4 +1,6 @@
 mod core;
+mod shared;
+mod database;
 
 use crate::core::collector::run_collector;
 
