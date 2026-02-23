@@ -22,56 +22,43 @@ pub async fn run_collector(app: AppHandle) {
 
     loop {
         ticker.tick().await;
-       
-        let idle_time = get_idle_time_info();
-        let window_infos = get_active_window_infos();
+
+        let Some(idle_time) = get_idle_time_info() else { continue };
+        let Some(window_infos) = get_active_window_infos() else { continue };
 
         let audio_playing_apps = get_audio_playing_apps();
-        info!("Audio playing {} : {:?}", audio_playing_apps.iter().count(), audio_playing_apps);
-        if let (Some(idle_time), Some(window_infos)) = (idle_time, window_infos) {
-            match get_latest_entry() {
-                Ok(Some(mut entry)) => {
-                    if entry.app_name == window_infos.app_name
-                    {
-                        entry.end_time = Utc::now();
-                        entry.idle_time = idle_time as i128; //TODO handle active -> idle -> active scenario
-                        update_latest_entry(&entry);
-                        info!("Updated latest entry: {}", entry);
-                    }
-                    else 
-                    {
-                        entry = ActivityEntry {
-                            start_time: Utc::now(),
-                            end_time: Utc::now(),
-                            title: window_infos.title,
-                            process_path: window_infos.process_path,
-                            app_name: window_infos.app_name.clone(),
-                            idle_time: 0i128,
-                            is_audio_playing: audio_playing_apps.iter().count() > 0,
-                        };
-                        insert_activity_entry(&entry).unwrap();
-                        info!("Inserted new entry: {}", entry);
-                    }
-                    send_status(&app, entry.clone());
-                }
-                Ok(None) => {
-                    let entry = ActivityEntry {
-                        start_time: Utc::now(),
-                        end_time: Utc::now(),
-                        title: window_infos.title,
-                        process_path: window_infos.process_path,
-                        app_name: window_infos.app_name.clone(),
-                        idle_time: 0i128,
-                        is_audio_playing: audio_playing_apps.iter().count() > 0,
-                    };
-                    insert_activity_entry(&entry).unwrap();
-                    info!("Inserted new entry: {}", entry);
-                }
-                Err(e) => {
-                    error!("Error getting latest entry: {}", e);
-                }
+        let is_audio_playing = !audio_playing_apps.is_empty();
+        info!("Audio playing {} : {:?}", audio_playing_apps.len(), audio_playing_apps);
+
+        let entry = match get_latest_entry() {
+            Ok(Some(mut entry)) if entry.app_name == window_infos.app_name => {
+                entry.end_time = Utc::now();
+                entry.idle_time = idle_time as i128; //TODO handle active -> idle -> active scenario
+                update_latest_entry(&entry);
+                info!("Updated latest entry: {}", entry);
+                entry
             }
-        }
+            Ok(_) => {
+                let entry = ActivityEntry {
+                    start_time: Utc::now(),
+                    end_time: Utc::now(),
+                    title: window_infos.title,
+                    process_path: window_infos.process_path,
+                    app_name: window_infos.app_name,
+                    idle_time: 0,
+                    is_audio_playing,
+                };
+                insert_activity_entry(&entry).unwrap();
+                info!("Inserted new entry: {}", entry);
+                entry
+            }
+            Err(e) => {
+                error!("Error getting latest entry: {}", e);
+                continue;
+            }
+        };
+
+        send_status(&app, entry);
     }
 }
 
