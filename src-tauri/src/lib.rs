@@ -1,9 +1,10 @@
 mod core;
 mod shared;
 mod database;
+mod commands;
 
 use crate::core::collector::run_collector;
-
+use crate::commands::commands::{get_grouped_data};
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -18,7 +19,7 @@ pub fn run() {
     
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, get_grouped_data])
         .setup(|app| {
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {

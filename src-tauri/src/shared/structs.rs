@@ -16,6 +16,13 @@ pub struct ActivityEntry {
 
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GroupedEntry {
+    pub name: String,
+    pub total_ms: i64,
+}
+
 impl fmt::Display for ActivityEntry {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(

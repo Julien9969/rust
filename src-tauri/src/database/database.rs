@@ -2,7 +2,7 @@ use duckdb::{params, Connection, Result};
 use log::{warn, info, debug};
 use std::{path::PathBuf, sync::Mutex};
 use once_cell::sync::Lazy;
-use crate::shared::structs::ActivityEntry;
+use crate::shared::structs::{ActivityEntry, GroupedEntry};
 
 static DB: Lazy<Mutex<Connection>> = Lazy::new(|| {
     let conn = match initialize_database() {
@@ -113,4 +113,29 @@ pub fn update_latest_entry(entry: &ActivityEntry) -> () {
             warn!("Error updating latest entry: {}", e);
         }
     }
+}
+
+pub fn get_grouped_entry(group_by: String, start_time: i64, end_time: i64) -> Result<Vec<GroupedEntry>, Box<dyn std::error::Error>> {
+    let conn = DB.lock().unwrap();
+    let sql = format!(
+        "SELECT {col} as name, SUM(epoch_ms(end_time) - epoch_ms(start_time)) as total_ms \
+        FROM activityRecords \
+        WHERE epoch_ms(start_time) >= ? AND epoch_ms(start_time) < ? \
+        GROUP BY {col} \
+        ORDER BY total_ms DESC",
+        col = group_by
+    );
+    let mut stmt = conn.prepare(&sql)?;
+
+    let mut entries = Vec::new();
+    let mut rows = stmt.query(params![start_time, end_time])?;
+
+    while let Some(row) = rows.next()? {
+        entries.push(GroupedEntry {
+            name:     row.get(0)?,
+            total_ms: row.get(1)?,
+        });
+    }
+
+    Ok(entries)
 }

@@ -17,9 +17,9 @@
 </script>
 
 <main class="min-h-screen bg-background p-2">
-  <div class="mx-auto space-y-4">
-    <MenuBar/>
-    <div class="flex items-start gap-4">
+  <MenuBar/>
+  <div class="mx-auto space-y-4 scale-95">
+    <div class="flex items-start gap-4 ">
 
       <Card.Root class="max-w-md w-[40%]">
         <Card.Header>
@@ -44,9 +44,7 @@
         <DonutChart />
       </div>
     </div>
-
     <StatusDisplay />
-
     <div class="flex justify-center">
       <Button href="/second" variant="outline">
         Go to Second Page →

@@ -2,16 +2,8 @@
   import { onMount } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
   import * as Card from "$lib/components/ui/card";
+  import type { ActivityEntry } from '$lib/shared/structs';
 
-  type ActivityEntry = {
-    startTime: Date;
-    endTime: Date;
-    title: string;
-    processPath: string;
-    appName: string;
-    idleTime: number;
-    isAudioPlaying : boolean;
-  };
 
   let statusUpdate = $state<ActivityEntry | null>(null);
 
