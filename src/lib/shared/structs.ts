@@ -4,6 +4,6 @@ export type ActivityEntry = {
     title: string;
     processPath: string;
     appName: string;
-    idleTime: number;
+    isIdle: boolean;
     isAudioPlaying : boolean;
 };

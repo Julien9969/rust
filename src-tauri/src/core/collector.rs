@@ -23,17 +23,17 @@ pub async fn run_collector(app: AppHandle) {
     loop {
         ticker.tick().await;
 
-        let Some(idle_time) = get_idle_time_info() else { continue };
+        let Some(is_idle) = is_user_idle() else { continue };
         let Some(window_infos) = get_active_window_infos() else { continue };
-
         let audio_playing_apps = get_audio_playing_apps();
-        let is_audio_playing = !audio_playing_apps.is_empty();
+
+        let is_audio_playing = audio_playing_apps.contains(&window_infos.process_path.file_stem().unwrap_or_default().to_string_lossy().to_string());
         info!("Audio playing {} : {:?}", audio_playing_apps.len(), audio_playing_apps);
 
         let entry = match get_latest_entry() {
             Ok(Some(mut entry)) if entry.app_name == window_infos.app_name => {
                 entry.end_time = Utc::now();
-                entry.idle_time = idle_time as i128; //TODO handle active -> idle -> active scenario
+                entry.is_idle = is_idle;
                 update_latest_entry(&entry);
                 info!("Updated latest entry: {}", entry);
                 entry
@@ -45,7 +45,7 @@ pub async fn run_collector(app: AppHandle) {
                     title: window_infos.title,
                     process_path: window_infos.process_path,
                     app_name: window_infos.app_name,
-                    idle_time: 0,
+                    is_idle,
                     is_audio_playing,
                 };
                 insert_activity_entry(&entry).unwrap();
@@ -75,11 +75,11 @@ fn get_active_window_infos() -> Option<ActiveWindow> {
     }
 }
 
-fn get_idle_time_info() -> Option<u128> {
+fn is_user_idle() -> Option<bool> {
     match get_idle_time() {
         Ok(idle_time) => {
             trace!("Idle time: {} ms", idle_time.as_millis());
-            Some(idle_time.as_millis())
+            Some(idle_time.as_secs() > 10) // TODO make this threshold configurable
         },
         Err(e) => {
             error!("Error getting idle time: {}", e);

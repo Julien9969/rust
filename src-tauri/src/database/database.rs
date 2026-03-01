@@ -24,7 +24,7 @@ fn initialize_database() -> Result<Connection> {
             title TEXT,
             process_path TEXT,
             app_name TEXT,
-            idle_time BIGINT,
+            is_idle BOOLEAN,
             is_audio_playing BOOLEAN
         )",
         params![],
@@ -41,7 +41,7 @@ pub fn insert_activity_entry(entry: &ActivityEntry) -> Result<()> {
     let conn = DB.lock().unwrap();
     conn.execute(
         "INSERT INTO activityRecords 
-        (start_time, end_time, title, process_path, app_name, idle_time, is_audio_playing) 
+        (start_time, end_time, title, process_path, app_name, is_idle, is_audio_playing) 
         VALUES (?, ?, ?, ?, ?, ?, ?)",
         params![
             entry.start_time,
@@ -49,7 +49,7 @@ pub fn insert_activity_entry(entry: &ActivityEntry) -> Result<()> {
             entry.title,
             entry.process_path.to_str().unwrap_or_default(),
             entry.app_name,
-            entry.idle_time,
+            entry.is_idle,
             entry.is_audio_playing,
         ],
     )?;
@@ -60,7 +60,7 @@ pub fn get_latest_entry() -> Result<Option<ActivityEntry>> {
     let conn = DB.lock().unwrap();
 
     let latest_entry = conn.query_row(
-        "SELECT start_time, end_time, title, process_path, app_name, idle_time, is_audio_playing
+        "SELECT start_time, end_time, title, process_path, app_name, is_idle, is_audio_playing
         FROM activityRecords ORDER BY start_time DESC LIMIT 1",
         [],
         |row| {
@@ -70,7 +70,7 @@ pub fn get_latest_entry() -> Result<Option<ActivityEntry>> {
                 title:            row.get(2)?,
                 process_path:     PathBuf::from(row.get::<_, String>(3)?),
                 app_name:         row.get(4)?,
-                idle_time:        row.get(5)?,
+                is_idle:          row.get(5)?,
                 is_audio_playing: row.get(6)?,
             })
         },
@@ -93,11 +93,11 @@ pub fn update_latest_entry(entry: &ActivityEntry) -> () {
     let conn = DB.lock().unwrap();
     let result = conn.execute(
         "UPDATE activityRecords SET 
-        end_time = ?, idle_time = ?
+        end_time = ?, is_idle = ?
         WHERE start_time = (SELECT MAX(start_time) FROM activityRecords)",
         params![
             entry.end_time,
-            entry.idle_time,
+            entry.is_idle,
         ],
     );
 

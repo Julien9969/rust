@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { invoke } from '@tauri-apps/api/core';
   import * as Chart from "$lib/components/ui/chart/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
@@ -22,8 +22,9 @@
   let isLoading = $state(true);
   let error = $state('');
   let todayLabel = $state('');
+  let intervalId: number | null = null;
 
-  onMount(async () => {
+  async function updateChart() {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
@@ -59,6 +60,17 @@
       error = String(e);
     } finally {
       isLoading = false;
+    }
+  }
+
+  onMount(async () => {
+    await updateChart();
+    intervalId = window.setInterval(updateChart, 60 * 1000); // Refresh every 1 minutes
+  });
+
+  onDestroy(() => {
+    if (intervalId !== null) {
+      clearInterval(intervalId);
     }
   });
 

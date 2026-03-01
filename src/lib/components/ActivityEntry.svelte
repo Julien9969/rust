@@ -10,7 +10,7 @@
   onMount(() => {
     const unlisten = listen<ActivityEntry>('status-update', (event) => {
       console.log(
-        `status update: ${event.payload.processPath} has been idle for ${event.payload.idleTime}ms, is audio ${event.payload.isAudioPlaying}`
+        `status update: ${event.payload.processPath} is idle: ${event.payload.isIdle}, is audio ${event.payload.isAudioPlaying}`
       );
       statusUpdate = event.payload;
     });
@@ -50,7 +50,7 @@
         
         <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
           <span class="text-sm font-medium text-muted-foreground">Idle Time</span>
-          <span class="text-sm font-semibold font-mono text-primary">{formatIdleTime(statusUpdate.idleTime)}</span>
+          <span class="text-sm font-semibold font-mono text-primary">Is idle: {statusUpdate.isIdle ? 'Yes' : 'No'}</span>
         </div>
         
         <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
@@ -60,7 +60,7 @@
 
         <div class="flex justify-between items-center p-3 bg-muted rounded-lg">
           <span class="text-sm font-medium text-muted-foreground">Audio</span>
-          <span class="text-sm text-muted-foreground">{statusUpdate.isAudioPlaying}</span>
+          <span class="text-sm text-muted-foreground">{statusUpdate.isAudioPlaying ? 'Yes' : 'No'}</span>
         </div>
       </div>
     {:else}
